@@ -1,25 +1,11 @@
-{ pkgs, modulesPath, ... }:
+{ pkgs, ... }:
 {
-  imports = [
-    "${modulesPath}/profiles/qemu-guest.nix"
-  ];
-
   nix.settings.experimental-features = [
     "nix-command"
     "flakes"
   ];
 
   system.stateVersion = "25.11";
-
-  boot.loader.grub = {
-    enable = true;
-    devices = [ "/dev/vda" ];
-  };
-
-  fileSystems."/" = {
-    device = "/dev/disk/by-label/nixos";
-    fsType = "ext4";
-  };
 
   services.cloud-init = {
     enable = true;
