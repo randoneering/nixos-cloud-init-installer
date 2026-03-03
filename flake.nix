@@ -1,5 +1,5 @@
 {
-  description = "Basic NixOS setup with cloud-init, intended to be made into an ISO";
+  description = "NixOS cloud-init images for installer ISO and OpenStack";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11"; # Change me on NixOS upgrades!
@@ -17,6 +17,18 @@
         system = "aarch64-linux";
         modules = [
           ./configuration.nix
+        ];
+      };
+      openstack-x86_64 = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ./openstack-configuration.nix
+        ];
+      };
+      openstack-aarch64 = nixpkgs.lib.nixosSystem {
+        system = "aarch64-linux";
+        modules = [
+          ./openstack-configuration.nix
         ];
       };
     };

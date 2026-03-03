@@ -4,3 +4,7 @@ result-*
 
 # Ignore automatically generated direnv output
 .direnv
+
+# Ignore local assistant/tooling files
+.claude/
+CLAUDE.md
