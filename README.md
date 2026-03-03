@@ -34,6 +34,13 @@ After building, your image should be in the `result/iso/` directory, being named
 
 These targets are intended for OpenStack "user-provided" images and are separate from the installer ISO targets.
 
+The OpenStack image profile is defined in `openstack-configuration.nix` and is exposed by two flake targets:
+
+- `openstack-x86_64`
+- `openstack-aarch64`
+
+This profile enables cloud-init metadata/network handling (EC2 + ConfigDrive), auto-resizes the root filesystem on first boot, enables the QEMU guest agent, and disables `amazon-init` so cloud-init owns first-boot initialization.
+
 **x86_64 (Intel/AMD):**
 ```bash
 nix run nixpkgs#nixos-generators -- \
