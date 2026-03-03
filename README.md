@@ -1,5 +1,5 @@
 # nixos-cloud-init-installer
-A minimal NixOS flake with cloud-init designed for use as an installer ISO image for provisioning virtual machines
+A minimal NixOS flake with cloud-init for building installer ISO images and OpenStack guest images
 
 This was designed to be used to provision new NixOS virtual machines on a Proxmox host (via QEMU/KVM), while allowing the dynamic configuration of disks and other hardware. However, this should also support other hypervisors, including VirtualBox, Hyper-V, Xen, and VMWare.
 
@@ -7,7 +7,7 @@ There exist pre-built ISO images that you are able to download, for both x86_64 
 
 **NOTE:** SSH login via password is disabled, for security reasons! Instead, it is recommended to pass public SSH keys to NixOS via cloud-init when using this installer. However, for ease of installation, no password is required to use sudo.
 
-## Steps to build this image yourself:
+## Build installer ISO images
 
 This assumes that you have Nix installed on your system, with flakes and nix-commands enabled.
 
@@ -29,6 +29,56 @@ nix run nixpkgs#nixos-generators -- \
 ```
 
 After building, your image should be in the `result/iso/` directory, being named something in the vein of `nixos-minimal-25.11-DATE-HASH-ARCHITECTURE-linux.iso`.
+
+## Build OpenStack guest images
+
+These targets are intended for OpenStack "user-provided" images and are separate from the installer ISO targets.
+
+**x86_64 (Intel/AMD):**
+```bash
+nix run nixpkgs#nixos-generators -- \
+  --format openstack --system x86_64-linux \
+  --flake .#openstack-x86_64 --out-link result-openstack
+```
+
+**aarch64 (ARM64):**
+```bash
+nix run nixpkgs#nixos-generators -- \
+  --format openstack --system aarch64-linux \
+  --flake .#openstack-aarch64 --out-link result-openstack
+```
+
+OSL recommends uploading `raw` images on Ceph-backed OpenStack. If your output is qcow2, convert it first:
+
+```bash
+qemu-img convert -O raw -p result-openstack/*.qcow2 nixos-openstack.raw
+```
+
+Source your OpenStack RC file first (downloaded from Horizon, usually as `*openrc.sh`):
+
+```bash
+source ~/Downloads/*openrc.sh
+```
+
+Then upload with image properties that match OSL defaults:
+
+```bash
+openstack image create \
+  --file nixos-openstack.raw \
+  --disk-format raw \
+  --container-format bare \
+  --property hw_scsi_model=virtio-scsi \
+  --property hw_disk_bus=scsi \
+  --property hw_qemu_guest_agent=yes \
+  --property os_require_quiesce=yes \
+  nixos-25.11-openstack
+```
+
+Verify the image reached `active` status and has the expected properties:
+
+```bash
+openstack image show nixos-25.11-openstack
+```
 
 ### Notice for cross-compiling images
 If building an image for an architecture different to the native architecture of the build host, you will need to configure Nix accordingly.

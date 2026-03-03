@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 {
   nix.settings.experimental-features = [
     "nix-command"
@@ -29,6 +29,9 @@
       };
     };
   };
+
+  # Avoid legacy EC2 user-data nixos-rebuild behavior; use cloud-init instead
+  systemd.services.amazon-init.enable = lib.mkForce false;
 
   networking.useDHCP = false;
 
