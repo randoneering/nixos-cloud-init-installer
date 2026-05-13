@@ -36,7 +36,7 @@ jobs:
           cp "$REAL_ISO_FILENAME" \
             nixos-cloud-init-installer-${{ github.ref_name }}-${{ matrix.architecture }}.iso
       - name: Upload build artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: iso-artifact-${{ matrix.architecture }}
           path: nixos-cloud-init-installer-${{ github.ref_name }}-${{ matrix.architecture }}.iso
@@ -45,13 +45,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           path: iso-artifacts
           pattern: iso-artifact-*
           merge-multiple: true
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           draft: true
           files: iso-artifacts/*.iso
